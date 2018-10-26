@@ -1,77 +1,127 @@
-Rust for C# programmers
-=======================
+Rust Dojo 2018
+==============
 
-You might have heard about Rust, a new programming language developed by Mozilla Research. There are excellent resources out there if you want to learn the language, but to my knowledge there isn't much oriented to C# programmers. Hopefully this is a small step in the right direction.
-
-This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 8th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey. We will use C# as starting point, so expect lots of comparisons between the two languages.
+This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 8th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey.
 
 # Introduction
 
-## Why a new programming language?
+FIXME: copy description from the official website
 
-Rust is a pretty unique language. From a researcher's perspective, it is interesting because it applies decades of academic research in a way that is actually usable. From a programmer's perspective, its main appeal is that it offers excellent performance, without giving up [memory safety](https://en.wikipedia.org/wiki/Memory_safety). Besides, Rust forces you to think rigorously about your programs, thereby helping you avoid many kinds of bugs that other languages happily allow. There is a lot to learn about programming just by learning the language.
+Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, the combination of features that Rust offers is quite unique. If you are interested, read [this](FIXME:link to old readme).
 
-Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, there are two features that make Rust unique: *performance on by default* and *thread-safety on by default*. We will discuss them below.
+# Setup
 
-## Performance on by default
-
-When Mozilla set out to develop Rust, their goal was to create a programming language that could replace C++ in Firefox. As of [Firefox Quantum](https://hacks.mozilla.org/2017/11/entering-the-quantum-era-how-firefox-got-fast-again-and-where-its-going-to-get-faster/), parts of the browser have indeed been written in Rust! To be a viable replacement, Rust had to be at least as fast as C++. An ambitious goal.
-
-Languages such as C++ offer the programmer an arsenal of tools to control low level aspects of a program. This is valid for Rust as well. For instance, both languages have no built-in [garbage collector](https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)). Without a garbage collector, your program spends less time figuring out which memory to clean up and more time doing what you actually want it to do.
-
-But if the languages are that similar, why create a new language at all? It turns out that C++'s low level features open the door to all kinds of [pernicious bugs](https://en.wikipedia.org/wiki/Undefined_behavior), difficult to track and often cause of [security vulnerabilities](https://security.stackexchange.com/questions/115507). Rust, on the other hand, has a *very* smart compiler, capable of offering similar low level features, while keeping the door shut for the aforementioned class of bugs.
-
-But let's go back to Rust's performance. In the general case, when compared to C#, Rust should have:
-
-* Faster start-up
-* Smaller memory footprint
-* Less heap allocations
-* More agressive program optimization
-* More statically dispatched functions (instead of [dynamically](https://en.wikipedia.org/wiki/Dynamic_dispatch))
-
-There are of course more differences than the ones mentioned above, but these give a rough idea of what you can expect from Rust. Let's now look at how they influence performance in a test program. The first version is written in C# and the second one in Rust. You can find the source code in [TODO].
-
-TODO: add example comparing C# and Rust
-
-TODO: show numbers (startup time, runtime)
-
-## Thread-safety on by default
-
-Many programming languages, including C++, have been designed without taking concurrency in mind. Writing concurrent code in such languages is therefore [incredibly hard](http://www.acodersjourney.com/2017/08/top-20-cplusplus-multithreading-mistakes/). Again, there is a huge amount of things that can go wrong.
-
-The main problem with multithreaded code is that it is possible to, at the same time, read data from one thread while mutating the same data from another thread (this is known as a data race). For instance, in C# you may be iterating through a `List` in one thread while modifying it in a different thread. Fortunately, this throws an `InvalidOperationException`. However, in some situations you are not that lucky and the program just behaves in a very weird way, without any exception to warn you (see the example at the end of this section).
-
-Some languages such as Erlang, Haskell or Clojure solve this issue through immutability. Since you cannot mutate anything, it is impossible to concurrently read and modify the same data. This, however, limits the kinds of programs you can write. Sometimes you really need mutation. Rust claims you can have your cake and eat it too: data-race free (i.e. thread-safe) concurrency *and* mutation.
-
-The example below shows a C# program containing a data race and its Rust equivalent. The C# program returns a bogus result, while the Rust program refuses to compile. You can find the source code in [TODO]
-
-TODO: add example of a data race allowed by C# and prevented by Rust
-
-TODO: show C#'s output
-
-TODO: add example of a Rust program that does compile
-
-Note that Rust cannot prevent [deadlocks](https://en.wikipedia.org/wiki/Deadlock) and other kinds of [race conditions](https://en.wikipedia.org/wiki/Race_condition) (race conditions are a superset of data races). In fact, no amount of static checking can prevent these problems, unless you are using a language that is not turing-complete (see [Rice's theorem](https://en.wikipedia.org/wiki/Rice's_theorem)).
-
-## Evaluating Rust's unique features
-
-Until Rust, high-level programming languages have resorted to garbage collection as the only way to achieve memory safety. In the same vein, they have enforced immutability and message passing to achieve thread-safety. Rust, on the other hand, leverages decades of programming language research to achieve something that seemed to be impossible:
-
-* Memory safety without garbage collection
-* Thread-safety with mutable shared data
-
-Another way to put it is that [Rust has a static garbage collector](https://words.steveklabnik.com/borrow-checking-escape-analysis-and-the-generational-hypothesis), which determines at compile time when objects need to be destroyed, and a static thread-safety detector, which refuses to compile programs that may have data races.
-
-So what's the catch? Is Rust really a magic programming language that automatically makes your code fast and thread-safe without any effort on your part? That sounds too good to be true. In fact, Rust has a [steep learning curve](http://julio.meroh.net/2018/06/rust-review-learning-curve.html) and forces you to think about programs and data in a way that takes time to understand. On the bright side, it all gets much easier once you have a good grip on the language.
-
-## Other features
-
-Talk about ADTs/enums, pattern matching
-
-No inheritance, no classes
-
-Traits
+FIXME:
+* Instructions on how to install Rust
+* Explain that we never use the rust compiler directly. Instead, we use cargo
+* Create and run a new cargo project
 
 # Exercises
 
-TODO: add dojo exercises
+## Enums and Result
+
+If you see a Rust enum you may think they are just the same as in other languages. Consider for instance the code below:
+
+```rust
+enum Day {
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday,
+}
+```
+
+In other languages you can use the `switch` statement to execute different code depending on the value of an enum. The function below does exactly this, using Rust's `match` construct, to check wheter it is Friday:
+
+```rust
+fn is_it_already_friday(day: Day) -> bool {
+    match day {
+        // It is Friday!
+        Day::Friday => true,
+        // Not friday :(
+        _ => false,
+    }
+}
+```
+
+The name `match` hints that there is more going on than just a `switch` statement. In fact, `match` allows you to *pattern match* on a value. To illustrate this, let us define a more interesting enum that describes figures:
+
+```rust
+enum Figure {
+    Square(f32),
+    Rectangle(f32, f32),
+}
+```
+
+Compared to `Day`, the `Figure` enum has the difference that each of the *variants* contains values. In the case of `Figure::Square`, the single `f32` represents the length of its side. In the case of `Figure::Rectangle`, there are two `f32` fields: one representing the width and other representing the height. Consider the `calculate_area` function, where we *pattern match* to extract the `f32` fields depending on the enum variant:
+
+```rust
+fn calculate_area(figure: Figure) -> f32 {
+    match figure {
+        Figure::Square(side) => side * side,
+        Figure::Rectangle(width, height) => width * height,
+    }
+}
+```
+
+**Exercises:**
+
+1. Enhance the `Figure` enum with an additional variant `Circle`.
+1. Enhance the `calculate_area` function to return the area of a `Circle` as well (you will need the value of π, which you can find use through `f64::consts::PI` [FIXME: does this require an import?])
+1. Create a function `is_rectangular` that returns true for squares and rectangles and false for other kinds of figures.
+1. Bonus: write a function `get_square_side` that returns an `Option<f32>`. If the figure is a square, the function should return its side. Otherwise the function should return `Option::None`. Protip: don't forget to wrap the square side in a `Option::Some`. [FIXME: confirm we are explaining options in the slides]
+1. Bonus: write unit tests for `calculate_area`, using `#[test]` as described in FIXME ADD LINK TO DOCS
+
+## Strings
+
+In Rust land there are two kinds of strings. The `&str` type represents immutable strings, while `String` represents mutable ones. This can get very confusing, because string literals produce `&str` but oftentimes you want a `String`!
+
+In the code below, `get_name` returns a `&str` and `get_greeting` returns a `String`. In the general case, strings created at compile time (literals) are immutable, while strings created at run time (e.g. by using `format!`) are mutable.
+
+```rust
+fn get_name() -> &str {
+    "John Doe"
+}
+
+fn get_greeting() -> String {
+    let name = get_name();
+    format!("Good morning mr. {}", name)
+}
+```
+
+A common mistake is to mix `&str` and `String` as if they were the same type. They are not! The code below will therefore not compile (notice how we changed the return type of the function):
+
+```rust
+fn get_name() -> String {
+    "John Doe"
+}
+```
+
+Fortunately, it is possible to get a `String` from a `&str` by calling `to_string`. If we take the previous (non-compiling) function and use `to_string`, we can get it to compile:
+
+```rust
+fn get_name() -> String {
+    "John Doe".to_string()
+}
+```
+
+ and, likewise, a `&str` from a `String`.
+
+Two kinds of strings
+
+Immutable vs mutable
+
+Literals create immutable strings
+
+You can go from immutable to mutable
+
+FIXME: fizzbuzz?
+
+Bonus: use Cow
+
+## Traits and iterators
+
+FIXME: exercise where you have to implement the iterator trait for a custom data structure

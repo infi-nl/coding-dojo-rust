@@ -70,57 +70,97 @@ fn calculate_area(figure: Figure) -> f32 {
 **Exercises:**
 
 1. Enhance the `Figure` enum with an additional variant `Circle`.
-1. Enhance the `calculate_area` function to return the area of a `Circle` as well (you will need the value of π, which you can find use through `f64::consts::PI` [FIXME: does this require an import?])
+1. Enhance the `calculate_area` function to return the area of a `Circle` as well (you will need the value of π, which you can find use through `std::f64::consts::PI`)
 1. Create a function `is_rectangular` that returns true for squares and rectangles and false for other kinds of figures.
-1. Bonus: write a function `get_square_side` that returns an `Option<f32>`. If the figure is a square, the function should return its side. Otherwise the function should return `Option::None`. Protip: don't forget to wrap the square side in a `Option::Some`. [FIXME: confirm we are explaining options in the slides]
-1. Bonus: write unit tests for `calculate_area`, using `#[test]` as described in FIXME ADD LINK TO DOCS
+1. Bonus: write a function `get_square_side` that returns an `Option<f32>`. If the figure is a square, the function should return its side. Otherwise the function should return `Option::None`. Protip: don't forget to wrap the square side in a `Option::Some`.
+1. Bonus: write unit tests for `calculate_area`, using `#[test]` as described in the [documentation](https://doc.rust-lang.org/book/2018-edition/ch11-00-testing.html).
 
 ## Strings
 
-In Rust land there are two kinds of strings. The `&str` type represents immutable strings, while `String` represents mutable ones. This can get very confusing, because string literals produce `&str` but oftentimes you want a `String`!
+⚠ Warning: working with Rust strings for the first time can be highly frustrating. Good luck!
 
-In the code below, `get_name` returns a `&str` and `get_greeting` returns a `String`. In the general case, strings created at compile time (literals) are immutable, while strings created at run time (e.g. by using `format!`) are mutable.
+In Rust land there are two kinds of strings. The `String` type represents the normal, mutable, string we all are used to and the `&str` type represents an *immutable string reference*. This can get very confusing, so let's look at a bunch of examples.
+
+In the code below, the `greet` function receives an immutable string as a parameter, representing the name of a person. It then formats the name and returns a new string. Notice that the types differ (the parameter uses `&str` and the return type uses `String`).
 
 ```rust
-fn get_name() -> &str {
-    "John Doe"
-}
-
-fn get_greeting() -> String {
-    let name = get_name();
-    format!("Good morning mr. {}", name)
+fn greet(name: &str) -> String {
+    format!("Good morning {}", name)
 }
 ```
 
-A common mistake is to mix `&str` and `String` as if they were the same type. They are not! The code below will therefore not compile (notice how we changed the return type of the function):
+You can test the previous function with the following code:
 
 ```rust
-fn get_name() -> String {
-    "John Doe"
+fn main() {
+    let greeting = greet("John Doe");
+    println!("{}", greeting);
+    // Prints: Good morning John Doe
 }
 ```
 
-Fortunately, it is possible to get a `String` from a `&str` by calling `to_string`. If we take the previous (non-compiling) function and use `to_string`, we can get it to compile:
+Since a `String` is mutable, you can modify the greeting before printing it. For instance, you could add some text after it:
 
 ```rust
-fn get_name() -> String {
-    "John Doe".to_string()
+fn main() {
+    let mut greeting = greet("John Doe");
+    greeting.push_str(", it is always nice to see you");
+    println!("{}", greeting);
+    // Prints: Good morning John Doe, it is always nice to see you
 }
 ```
 
- and, likewise, a `&str` from a `String`.
+String literals create immutable strings, of type `&str`. This means you cannot modify them, unless you first transform them into a `String` (this is what `format!` does under the hood). The code below tries to modify a `&str`, but fails to compile:
 
-Two kinds of strings
+```rust
+fn main() {
+    let str_greeting = "Good morning John Doe";
+    // The following line triggers a compile error
+    str_greeting.push_str(", it is always nice to see you");
+    println!("{}", str_greeting);
+}
+```
 
-Immutable vs mutable
+To turn a `&str` into a `String` you first have to create an empty `String` and then copy the characters from the `&str`. Since this is a very common operation, the standard library includes a function that does this for you: `to_string`. See below the previous code snippet, now fixed:
 
-Literals create immutable strings
+```rust
+fn main() {
+    let str_greeting = "Good morning John Doe";
+    let mut greeting = str_greeting.to_string();
+    greeting.push_str(", it is always nice to see you");
+    println!("{}", greeting);
+}
+```
 
-You can go from immutable to mutable
+It is also possible to turn a `String` into a `&str`. In the following example, the name is a `String`, but the `greet` function expects a `&str`, so the code doesn't compile:
 
-FIXME: fizzbuzz?
+```rust
+fn main() {
+    let name = "John Doe".to_string();
+    // The following line triggers a compile error: expected a &str, got a String
+    let greeting = greet(name);
+    println!("{}", greeting);
+}
+```
 
-Bonus: use Cow
+You can go from `String` to `&str` by calling `as_str`. This is so common that Rust *coerces* the `String` type into a `&str` if the reference operator (`&`) is used (after all, `&str` is a string *reference*). The code below fixes the compile error from the previous example:
+
+```rust
+fn main() {
+    let name = "John Doe".to_string();
+    let greeting = greet(name.as_str());
+    // Also valid:
+    // let greeting = greet(&name);
+    println!("{}", greeting);
+}
+```
+
+At this point, the million dollar question is: when should I use `&str` and when `String`? In the general case, use `String` when you want to transfer ownership and `&str` otherwise. If you are not familiar with Rust's ownership model you might want to [read the docs](https://doc.rust-lang.org/book/2018-edition/ch04-00-understanding-ownership.html).
+
+Exercises:
+
+1. FIXME: something involving ownership?
+1. Bonus: follow [this blog post](https://chrismorgan.info/blog/rust-fizzbuzz.html) to implement FizzBuzz in Rust. Spoiler: you will be surprised about how complex it can get!
 
 ## Traits and iterators
 

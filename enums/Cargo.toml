@@ -2,6 +2,5 @@
 name = "enums"
 version = "0.1.0"
 authors = ["Adolfo <adolfo@infi.nl>"]
-edition = "2018"
 
 [dependencies]

@@ -1,0 +1,6 @@
+[package]
+name = "iterators"
+version = "0.1.0"
+authors = ["Adolfo <adolfo@infi.nl>"]
+
+[dependencies]

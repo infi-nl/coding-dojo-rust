@@ -1,22 +1,32 @@
 Rust Dojo 2018
 ==============
 
+According to the [official website](https://www.rust-lang.org), Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, the combination of features that Rust offers is quite unique.
+
 This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 8th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey.
-
-# Introduction
-
-FIXME: copy description from the official website
-
-Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, the combination of features that Rust offers is quite unique. If you are interested, read [this](FIXME:link to old readme).
 
 # Setup
 
-FIXME:
-* Instructions on how to install Rust
-* Explain that we never use the rust compiler directly. Instead, we use cargo
-* Create and run a new cargo project
+In this dojo we are going to use Rust 1.30.1, which you can get following the instructions [here](https://www.rust-lang.org/en-US/install.html).
 
-[Rust playground](https://play.rust-lang.org/)
+You can test your setup running the following commands:
+
+```bash
+cargo new hello_world
+cd hello_world
+cargo run
+```
+
+Running the commands above should:
+
+* Create a new Rust project
+* Run the project and print `Hello, world!` to the console
+
+The current IDE situation is not great. At this moment, the best alternatives are ItelliJ IDEA with the `IntelliJ-Rust` plugin and Visual Studio Code with the `Rust (rls)` extension. Both extensions are available for download from their respective marketplaces.
+
+If you want to try out small code snippets without setting up a Rust project you can use the online [Rust playground](https://play.rust-lang.org/).
+
+**Important**: make sure you have a working compiler and IDE before the dojo! The exercises below assume that you can run `cargo` on your machine to compile and run Rust projects.
 
 # Exercises
 
@@ -69,13 +79,76 @@ fn calculate_area(figure: Figure) -> f32 {
 }
 ```
 
-**Exercises (see `./enums`):**
 
-1. Enhance the `Figure` enum with an additional variant `Circle`.
-1. Enhance the `calculate_area` function to return the area of a `Circle` as well (you will need the value of π, which you can find use through `std::f64::consts::PI`)
-1. Create a function `is_rectangular` that returns true for squares and rectangles and false for other kinds of figures.
-1. Bonus: write a function `get_square_side` that returns an `Option<f32>`. If the figure is a square, the function should return its side. Otherwise the function should return `Option::None`. Protip: don't forget to wrap the square side in a `Option::Some`.
-1. Bonus: write unit tests for `calculate_area`, using `#[test]` as described in the [documentation](https://doc.rust-lang.org/book/2018-edition/ch11-00-testing.html).
+### Enum exercises
+
+Below is a list of exercises related to enums. You can use the crate in the `enums` directory as a playground. There you will find the functions and types referenced in the exercises.
+
+#### 1. Enhance the `Figure` enum with an additional variant
+
+Currently, `Figure` only supports squares and rectangles. This is obviously not enough... We should support circles as well! Add a variant `Circle` that contains the radius of the circle as a 32-bit floating point number (`f32`).
+
+Note: the crate will no longer compile after you finish this exercise, but we will solve that in the next one.
+
+#### 2. Fix the `calculate_area` function
+
+Introducing a `Circle` variant causes a compile error in the `calculate_area` function. This happens because the `match` construct must cover all possible enum variants, but it is now only covering two of them, as you can see below:
+
+```rust
+fn calculate_area(figure: Figure) -> f32 {
+    match figure {
+        Figure::Square(side) => side * side,
+        Figure::Rectangle(width, height) => width * height,
+    }
+}
+```
+
+Fix the function by adding a new *match arm* for `Figure::Circle` that returns the area of the figure (i.e. `π * r ^ 2`). You will need the value of π, which you can use through `std::f64::consts::PI`.
+
+#### 3. Create a function `is_rectangular`
+
+Sometimes it is useful to know whether a figure is rectangular. Write function `is_rectangular` that returns true for squares and rectangles and false for circles.
+
+Hints:
+
+* You can copy and paste the code of `calculate_area` and modify the return values.
+* If you get warnings because of unused variables, remember that you can replace unused variable names by `_`.
+
+#### 4. Bonus: write a function `get_square_side`
+
+Sometimes you know the figure you have is a square. In such cases, writing a full `match` expression seems like overkill. Look:
+
+```rust
+match figure {
+    Figure::Square(side) => {
+        // Do something with `side`
+    }
+    _ => panic!("This code is unreachable")
+}
+```
+
+It would be much nicer to be able to say:
+
+```rust
+let side = figure.get_square_side();
+```
+
+Write a function `get_square_side` that returns the side if the figure is a square. You may choose between:
+
+* Crashing if the figure is not a square
+* Returning an `Option<f32>` that contains the side
+
+The advantage of returning an option is that the caller gets to choose what to do if the figure was not a square. This is the more idiomatic choice. The `Option<T>` type has a handy `unwrap` method that returns the value inside the option or crashes if there was no value. This means you could get the square side as follows:
+
+```rust
+let side = figure.get_square_side().unwrap();
+```
+
+#### 5. Bonus: write unit tests for `calculate_area`
+
+The [documentation](https://doc.rust-lang.org/book/2018-edition/ch11-00-testing.html) describes how you can write unit tests for Rust functions using the `#[test]` annotation. Write tests to ensure that your implementation of `calculate_area` is correct.
+
+Hint: use the `assert!` and `assert_eq!` macros to check whether your assumptions hold.
 
 ## Strings
 
@@ -163,7 +236,7 @@ At this point, the million dollar question is: when should I use `&str` and when
 
 1. Modify the `greet` function so it takes a `String` parameter instead of a `&str`. Can you fix the compile errors?
 1. The `greet` function does not have special logic to handle empty names. If you call it with the empty string it will return `"Good morning "`, which is unfortunate. Adapt the function so it returns something more interesting (like `"Good morning stranger"`). Hint: you will probably want to use the `is_empty` method on the `String`. *Sidenote: the `String` type actually doesn't have an `is_empty` method, but `&str` does. Fortunately, a `String` can call methods defined for `&str`* because of [this magic](https://doc.rust-lang.org/book/2018-edition/ch15-02-deref.html).
-1. Check out the [String](https://doc.rust-lang.org/std/string/struct.String.html) and [&str](https://doc.rust-lang.org/std/primitive.str.html) documentation to manipulate strings in creative ways inside the `greet` method. There are functions to turn strings to uppercase, trim them, split them into lines, etc.
+1. Check out the [String](https://doc.rust-lang.org/std/string/struct.String.html) and [&str](https://doc.rust-lang.org/std/primitive.str.html) documentation to manipulate strings in creative ways inside the `greet` method. There are functions to turn strings to uppercase, trim them, split them into lines, etc. Note that you may click on the `[-]` button to get an overview of the available functions.
 1. Create a struct `Person` that contains a field `name` of type `String`. Implement a method `Person::greet` that returns a `String` with the greeting, in the same vein as the `greet` function we have been using in the rest of the exercise. Ensure it is possible to call `Person::greet` more than once, as in `person.greet(); person.greet();`. Hint: there is a difference between using `self` and `&self` in the first parameter of the method.
 1. Bonus (difficult): follow [this blog post](https://chrismorgan.info/blog/rust-fizzbuzz.html) to implement FizzBuzz in Rust. Spoiler: you will be surprised about how complex it can get!
 1. Bonus (difficult): modify the `Person` struct so that the `name` field has the `&str` type instead of `String`. Can you get it to compile?

@@ -232,14 +232,57 @@ fn main() {
 
 At this point, the million dollar question is: when should I use `&str` and when `String`? In the general case, use `String` when you want to transfer ownership and `&str` otherwise. If you are not familiar with Rust's ownership model you might want to [read the docs](https://doc.rust-lang.org/book/2018-edition/ch04-00-understanding-ownership.html) or just ask for help during the dojo.
 
-**Exercises (see `./strings`):**
+### String exercises
 
-1. Modify the `greet` function so it takes a `String` parameter instead of a `&str`. Can you fix the compile errors?
-1. The `greet` function does not have special logic to handle empty names. If you call it with the empty string it will return `"Good morning "`, which is unfortunate. Adapt the function so it returns something more interesting (like `"Good morning stranger"`). Hint: you will probably want to use the `is_empty` method on the `String`. *Sidenote: the `String` type actually doesn't have an `is_empty` method, but `&str` does. Fortunately, a `String` can call methods defined for `&str`* because of [this magic](https://doc.rust-lang.org/book/2018-edition/ch15-02-deref.html).
-1. Check out the [String](https://doc.rust-lang.org/std/string/struct.String.html) and [&str](https://doc.rust-lang.org/std/primitive.str.html) documentation to manipulate strings in creative ways inside the `greet` method. There are functions to turn strings to uppercase, trim them, split them into lines, etc. Note that you may click on the `[-]` button to get an overview of the available functions.
-1. Create a struct `Person` that contains a field `name` of type `String`. Implement a method `Person::greet` that returns a `String` with the greeting, in the same vein as the `greet` function we have been using in the rest of the exercise. Ensure it is possible to call `Person::greet` more than once, as in `person.greet(); person.greet();`. Hint: there is a difference between using `self` and `&self` in the first parameter of the method.
-1. Bonus (difficult): follow [this blog post](https://chrismorgan.info/blog/rust-fizzbuzz.html) to implement FizzBuzz in Rust. Spoiler: you will be surprised about how complex it can get!
-1. Bonus (difficult): modify the `Person` struct so that the `name` field has the `&str` type instead of `String`. Can you get it to compile?
+Below is a list of exercises related to strings. You can use the crate in the `strings` directory as a playground. There you will find the functions and types referenced in the exercises.
+
+#### 1. Modify the `greet` function so it takes a `String`
+
+The version of `greet` in the `strings` directory receives a `&str` as a parameter. What happens if you change it to `String`? Can you fix the compile errors? Hint: the `main` function is passing a `&str` to `greet`, but you now need a `String`.
+
+#### 2. Handle empty names in the `greet` function
+
+Currently, `greet` does not have special logic to handle empty names. If you call it with the empty string it will return `"Good morning "`, which is unfortunate. Adapt the function so it returns something more interesting (like `"Good morning stranger"`).
+
+Hint: you will probably want to use the `is_empty` method on the `String`. *Sidenote: the `String` type actually doesn't have an `is_empty` method, but `&str` does. Fortunately, a `String` can call methods defined for `&str`* because of [this magic](https://doc.rust-lang.org/book/2018-edition/ch15-02-deref.html).
+
+#### 3. Optional: manipulate strings in creative ways inside the `greet` method
+
+Check out the [String](https://doc.rust-lang.org/std/string/struct.String.html) and [&str](https://doc.rust-lang.org/std/primitive.str.html) documentation to see a list of available functions. There are functions to turn strings to uppercase, trim them, split them into lines, etc. Note that you may click on the `[-]` button to get an overview of the available functions.
+
+#### 4. Create a struct `Person`
+
+Create a struct `Person` that contains a field `name` of type `String`. Recall the syntax to define structs:
+
+```rust
+struct Test {
+    number: i32
+}
+```
+
+After defining the struct, implement a method `Person::greet` that returns a `String` with the greeting, in the same vein as the `greet` function we have been using in the rest of the exercise. Recall the syntax to implement methods:
+
+```rust
+impl Test {
+    fn method_name(/* params */) -> /* return type */ { /* body */ }
+}
+```
+
+Ensure it is possible to call `Person::greet` more than once, as in `person.greet(); person.greet();`. Hint: there is a difference between using `self` and `&self` in the first parameter of the method.
+
+#### 5. Bonus (difficult): implement FizzBuzz in Rust
+
+Yes, it is true... Writing FizzBuzz in Rust can get surprisingly tricky because of the interaction between `&str` and `String`. Follow [this blog post](https://chrismorgan.info/blog/rust-fizzbuzz.html) for a detailed walkthrough.
+
+#### 6. Bonus (difficult): use `&str` instead of `String` in the `Person` struct
+
+The `Person` struct has a field `name` of type `String`. What happens if you replace it by `&str`?
+
+Hint: if you get stuck, try using `&'static str` instead of `&str` as the type. Here `'static` is the *lifetime* of the `&str`. You can read more on that in the [official book](https://doc.rust-lang.org/book/2018-edition/ch10-03-lifetime-syntax.html#the-static-lifetime).
+
+While easy to write, using `'static` is kind of cheating, since it means you will only be able to store string literals in `Person`. You can test this yourself by creating a `String`, turning it into a `&str` and trying to store that in `Person`. Spoiler: it will not compile.
+
+Can you modify the struct so it also accepts the `&str` mentioned above? You will probably want to read [this chapter](https://doc.rust-lang.org/book/2018-edition/ch10-03-lifetime-syntax.html#validating-references-with-lifetimes) of the official book.
 
 ## Traits and iterators
 

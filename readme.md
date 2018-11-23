@@ -3,7 +3,7 @@ Rust Dojo 2018
 
 According to the [official website](https://www.rust-lang.org), Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, the combination of features that Rust offers is quite unique.
 
-This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 8th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey.
+This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 26th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey.
 
 # Setup
 
@@ -290,7 +290,7 @@ Iterators are among Rust's most useful features. They represent streams of data,
 
 ```rust
 let numbers = vec![42, 33, 7, 101];
-let odd_count = numbers.iter().filter(|x| *x % 2 == 0).count();
+let even_count = numbers.iter().filter(|x| *x % 2 == 0).count();
 ```
 
 > Sidenote: we are using `*x` in the lambda passed to `filter` because `x` is a reference to a number. Its type is `&u32`, but we need a `u32` to use the `%` operator. We remove the reference by using the *dereference* operator (`*`).
@@ -315,10 +315,10 @@ for x in &numbers {
 
 > Sidenote: we are using `&numbers` here instead of `numbers` to indicate that the for loop is *borrowing* the contents of the vector, instead of *consuming* them. If you remove the `&` you won't be able to use `numbers` in the code that comes after the for loop.
 
-Combining the features mentioned above we can come up with the following code to print the odd numbers from a vector:
+Combining the features mentioned above we can come up with the following code to print the even numbers from a vector:
 
 ```rust
-fn print_odd_numbers(numbers: Vec<u32>) {
+fn print_even_numbers(numbers: Vec<u32>) {
     for x in numbers.iter().filter(|x| *x % 2 == 0) {
         println!("{}", x);
     }
@@ -387,10 +387,99 @@ fn main() {
 }
 ```
 
-**Exercises (see `./iterators`):**
+### Iterator exercises
 
-1. Rewrite the `print_even` function using the iterator methods `filter` and `sum`.
-1. Rewrite the `sum_squares` function using the iterator methods `map` and `sum`.
-1. Create an iterator that returns the elements of a `Vec<u32>`. Hint 1: you will need a struct with two fields: one to store the vector, another to store the current index. Hint 2: the type of the index number is `usize`.
-1. Bonus: the `square_vector` function uses indexing to replace the values of the elements of the vector. Rewrite it so it uses `iter_mut` and modifies the values without resorting to indexing. Note: `iter_mut` is similar to `iter`, with the difference that it allows you to mutate the values returned by the iterator.
-1. Bonus (advanced): create an iterator that goes through the elements of a `Vec<u32>`, *without consuming the vector*. That is, write a similar iterator to the one you get by calling `Vec::iter`.
+Below is a list of exercises related to iterators. You can use the crate in the `iterators` directory as a playground. There you will find the functions and types referenced in the exercises.
+
+#### 1. Rewrite the `print_even` function using iterators
+
+Check out the `print_even` function in `iterators/src/main.rs`. It is defined as follows:
+
+```rust
+fn print_even() {
+    for x in 0..10 {
+        if x % 2 == 0 {
+            println!("{}", x);
+        }
+    }
+}
+```
+
+Can you replace the for loop by iterator functions? Hint 1: use `filter` and `for_each`. Hint 2: you can call iterator methods on ranges, like this: `(1..10).sum()`.
+
+#### 2. Rewrite the `sum_squares` function using iterators
+
+The `sum_squares` function is defined as follows:
+
+```rust
+fn sum_squares() -> u32 {
+    let mut sum = 0;
+    for x in 0..10 {
+        sum += x * x;
+    }
+
+    sum
+}
+```
+
+Can you replace the for loop by iterator functions? Hint: use `map` and `sum`.
+
+#### 3. Create an iterator that returns the elements of a `Vec<u32>`
+
+We saw above that it is possible to create your own iterators. As shown in the `PositiveInts` example, this requires two things:
+
+1. Defining a struct, which will be the iterator
+1. Implementing the `Iterator` trait for your struct. That is, implementing the `next` function
+
+If you call your iterator `VecIter` and create it with a function `vec_to_iter`, then you should be able to use it as follows:
+
+```rust
+fn main() {
+    let xs = vec![1, 2, 3, 4, 5, 6];
+    for x in vec_to_iter(xs) {
+        println!("{}", x);
+    }
+}
+```
+
+Hints:
+
+1. You will need two field in your iterator struct: one to store the vector, another to store the current index
+1. The type of vector indices is `usize`, not `u32` or `u64`
+
+#### 4. Bonus: use a mutable iterator in `square_vector`
+
+The `square_vector` function uses indexing to replace the values of the elements of the vector:
+
+```rust
+fn square_vector(numbers: &mut Vec<u32>) {
+    for i in 0..numbers.len() {
+        numbers[i] *= numbers[i];
+    }
+}
+```
+
+It is also possible to iterate through the vector and modify the elements without using indexing. This also prevents mistakes like mixing indexes in a nested loop. There is a function called `iter_mut` which is similar to `iter` but allows you to modify the elements returned by the iterator. Rewrite `square_vector` so it uses `iter_mut` instead of indexing.
+
+#### 5. Bonus (advanced): create a non-consuming iterator that returns the elements of a `Vec<u32>`
+
+In Rust parlance, we say that a value is consumed whenever you transfer ownership to a different owner. For instance, the iterator for `Vec<u32>` defined in exercise 3 consumes the vector, meaning that you cannot reuse the vector after creating the iterator. You can check this by trying to compile the following code:
+
+```rust
+fn main() {
+    let xs = vec![1, 2, 3, 4, 5, 6];
+    for x in vec_to_iter(xs) {
+        println!("{}", x);
+    }
+
+    // The line below triggers a compile error, because we are not allowed to use `xs` again
+    // In other words, `xs` has been consumed by `vec_to_iter`
+    for x in vec_to_iter(xs) {
+        println!("{}", x);
+    }
+}
+```
+
+The challenge is to create an iterator that does not consume the vector. Again, you will need to create a struct and implement the `Iterator` trait for it. Again, you will need two struct fields, one to store the current index and one to store the vector.
+
+There is a difference, however, with the iterator you previously implemented. This time you will need to keep a *reference* to the vector. Instead of storing a `Vec<u32>` in the iterator struct, you will need to store a `&Vec<u32>`. You can check it works by trying to compile the example above.

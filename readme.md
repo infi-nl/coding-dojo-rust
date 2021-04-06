@@ -1,6 +1,10 @@
 Rust Dojo 2018
 ==============
 
+----
+**⚠ Warning:** This repository is _frozen in time_, and getting no new (security) updates. It is left public, should it help and offer some guidance around its subjects to future visitors. However, for latest guidance on involved subjects, we recommend going to the official sources.
+----
+
 According to the [official website](https://www.rust-lang.org), Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust draws lots of inspiration from existing languages and integrates many features that you will find in Scala, C# or Haskell. However, the combination of features that Rust offers is quite unique.
 
 This document is part of a Rust coding dojo held at [Infi](https://infi.nl) on November 26th 2018. It is not a detailed tutorial on how to become a Rust expert, though if that is your aim you can give [The Rust Book](https://doc.rust-lang.org/book/2018-edition/index.html) a try. Our Rust dojo is meant to awaken interest in the language and give you the tools to start your Rust journey.
